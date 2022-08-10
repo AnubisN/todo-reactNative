@@ -21,6 +21,7 @@ import { setNotes } from "../../reducers/notesSlice";
 import { useDispatch } from "react-redux";
 import { deleteAuth } from "../../reducers/authSlice";
 import { useIsFocused } from "@react-navigation/native";
+import { withSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function HomeScreen({ navigation }) {
   const dispatch = useDispatch();
@@ -61,7 +62,7 @@ export default function HomeScreen({ navigation }) {
   }, [isFocused]);
 
   return (
-    <View style={styles.container}>
+    <View style={modalVisible ? styles.containerOpacity : styles.container}>
       {/* Top nav section */}
       <View style={styles.topNav}>
         <View style={styles.title__section}>
@@ -111,63 +112,93 @@ export default function HomeScreen({ navigation }) {
       )}
 
       <Modal animationType="slide" transparent={true} visible={modalVisible}>
-        <View style={styles.alertContainer}>
-          <View style={styles.alertWrapper}>
-            <View style={{ marginBottom: 15 }}>
-              <Image source={require("../../../assets/info.png")} />
+        <View
+          style={{
+            flex: 1,
+            alignItems: "center",
+            justifyContent: "center",
+            borderRadius: 20,
+          }}
+        >
+          <View
+            style={{
+              width: 300,
+              height: 236,
+              backgroundColor: "#252525",
+              borderRadius: 20,
+              alignItems: "center",
+              justifyContent: "center",
+              flexDirection: "column",
+            }}
+          >
+            <View style={{ marginTop: 40, marginBottom: 40 }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#fff",
+                    marginRight: 50,
+                  }}
+                >
+                  Application Name:
+                </Text>
+                <TextInput
+                  style={{
+                    color: "#fff",
+                    marginLeft: 50,
+                  }}
+                  multiline={true}
+                  placeholderTextColor="#fff"
+                />
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <Text
+                  style={{
+                    color: "#fff",
+                    marginRight: 50,
+                  }}
+                >
+                  Created by:
+                </Text>
+                <TextInput
+                  style={{
+                    marginLeft: 50,
+                  }}
+                  multiline={true}
+                  placeholderTextColor="#9A9A9A"
+                />
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <Text
+                  style={{
+                    color: "#fff",
+                    marginRight: 50,
+                  }}
+                >
+                  Version:
+                </Text>
+                <TextInput
+                  style={{
+                    marginLeft: 50,
+                  }}
+                  multiline={true}
+                  placeholderTextColor="#9A9A9A"
+                />
+              </View>
             </View>
-            <Text style={{ fontSize: 26, color: "#CFCFCF", marginBottom: 30 }}>
-              Save changes ?
-            </Text>
 
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <TouchableOpacity
-                style={{
-                  width: 112,
-                  height: 39,
-                  backgroundColor: "#FF0000",
-                  borderRadius: 5,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginRight: 10,
-                }}
+            <TouchableOpacity onPress={() => setModelVisible(false)}>
+              <Text
+                style={{ fontSize: 22, color: "#CFCFCF", marginBottom: 30 }}
               >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    color: "#fff",
-                  }}
-                >
-                  Discard
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{
-                  width: 112,
-                  height: 39,
-                  backgroundColor: "#30BE71",
-                  borderRadius: 5,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  marginLeft: 10,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: 18,
-                    color: "#fff",
-                  }}
-                >
-                  Save
-                </Text>
-              </TouchableOpacity>
-            </View>
+                KEEP WRITING
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -214,6 +245,15 @@ const styles = StyleSheet.create({
     height: "100%",
     paddingLeft: 20,
     paddingRight: 20,
+  },
+  containerOpacity: {
+    flex: 1,
+    backgroundColor: "#252525",
+    borderRadius: 5,
+    height: "100%",
+    paddingLeft: 20,
+    paddingRight: 20,
+    opacity: 0.7,
   },
   wrapper: {
     padding: 20,
