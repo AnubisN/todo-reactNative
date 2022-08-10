@@ -12,7 +12,7 @@ const notesSlice = createSlice({
   initialState,
   reducers: {
     setNotes: (state, action) => {
-      state.value.notes = [...state.value.notes, action.payload];
+      state.value.notes = action.payload;
     },
     getNote: (state, action) => {
       const filteredNotes = state.value.notes.filter(

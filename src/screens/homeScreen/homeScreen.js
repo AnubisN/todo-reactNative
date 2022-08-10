@@ -15,18 +15,50 @@ import {
 import Notes from "../../components/notes/notes";
 import { todoTask } from "../../utils/data";
 import { useSelector } from "react-redux";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { db } from "../../utils/firebase/firebase-config";
+import { setNotes } from "../../reducers/notesSlice";
+import { useDispatch } from "react-redux";
+import { deleteAuth } from "../../reducers/authSlice";
+import { useIsFocused } from "@react-navigation/native";
 
 export default function HomeScreen({ navigation }) {
+  const dispatch = useDispatch();
+  const isFocused = useIsFocused();
+
   const { notes } = useSelector((state) => state.notes.value);
+  const { auth } = useSelector((state) => state.auth.value);
   const [modalVisible, setModelVisible] = useState(false);
+  const notesCollectionRef = query(
+    collection(db, "notes"),
+    where("userId", "==", auth.id)
+  );
+
+  const getNotes = async () => {
+    const notesCol = await getDocs(notesCollectionRef);
+    const notesResponse = notesCol.docs.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+    dispatch(setNotes([...notesResponse]));
+  };
 
   const onSearchClick = () => {
     navigation.navigate("Search");
   };
 
-  const onInfoClick = () => {
+  const onAddClick = () => {
     navigation.navigate("Add");
   };
+
+  const onLogout = () => {
+    dispatch(deleteAuth());
+    navigation.navigate("Login");
+  };
+
+  useEffect(() => {
+    getNotes();
+  }, [isFocused]);
 
   return (
     <View style={styles.container}>
@@ -43,7 +75,7 @@ export default function HomeScreen({ navigation }) {
             <Image source={require("../../../assets/search.png")} />
           </TouchableOpacity>
           <TouchableOpacity
-            onPress={onInfoClick}
+            onPress={() => setModelVisible(!modalVisible)}
             style={styles.utils__icon__info}
           >
             <Image source={require("../../../assets/info_outline.png")} />
@@ -78,29 +110,98 @@ export default function HomeScreen({ navigation }) {
         </View>
       )}
 
-      {/* <Notes todoTask={todoTask} /> */}
-      {/* <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onShow={() => alert("Showing")}
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-          setModelVisible(!modalVisible);
-        }}
-      >
-        <View>
-          <Text>Hrlo</Text>
+      <Modal animationType="slide" transparent={true} visible={modalVisible}>
+        <View style={styles.alertContainer}>
+          <View style={styles.alertWrapper}>
+            <View style={{ marginBottom: 15 }}>
+              <Image source={require("../../../assets/info.png")} />
+            </View>
+            <Text style={{ fontSize: 26, color: "#CFCFCF", marginBottom: 30 }}>
+              Save changes ?
+            </Text>
+
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  width: 112,
+                  height: 39,
+                  backgroundColor: "#FF0000",
+                  borderRadius: 5,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginRight: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 18,
+                    color: "#fff",
+                  }}
+                >
+                  Discard
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  width: 112,
+                  height: 39,
+                  backgroundColor: "#30BE71",
+                  borderRadius: 5,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginLeft: 10,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 18,
+                    color: "#fff",
+                  }}
+                >
+                  Save
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      </Modal> */}
+      </Modal>
       <View style={styles.addSection}>
         <TouchableOpacity
-          onPress={() => setModelVisible(!modalVisible)}
+          onPress={onAddClick}
+          // onPress={() => setModelVisible(!modalVisible)}
           style={[styles.addSection__btn, styles.shadow]}
         >
           <Image source={require("../../../assets/add.png")} />
         </TouchableOpacity>
       </View>
+
+      <TouchableOpacity
+        style={{
+          // flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          width: 100,
+          height: 50,
+          borderRadius: 20,
+          backgroundColor: "#30BE71",
+        }}
+        onPress={onLogout}
+      >
+        <Text
+          style={{
+            color: "#fff",
+            fontSize: 16,
+          }}
+        >
+          Logout
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }

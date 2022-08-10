@@ -17,6 +17,8 @@ import { Provider } from "react-redux";
 import { store } from "./src/store";
 import AddScreen from "./src/screens/addScreen/addScreen";
 import EditScreen from "./src/screens/editScreen/editScreen";
+import LoginScreen from "./src/screens/loginScreen/loginScreen";
+import RegisterScreen from "./src/screens/registerScreen/registerScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -25,12 +27,14 @@ export default function App() {
     <Provider store={store}>
       <NavigationContainer>
         <Stack.Navigator
-          initialRouteName="Home"
+          initialRouteName="Login"
           screenOptions={{
             headerShown: false,
           }}
         >
           <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Register" component={RegisterScreen} />
           <Stack.Screen name="Add" component={AddScreen} />
           <Stack.Screen name="Edit" component={EditScreen} />
           <Stack.Screen name="Search" component={SearchScreen} />

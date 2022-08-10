@@ -9,16 +9,19 @@ import {
   Modal,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-import { setNotes } from "../../reducers/notesSlice";
-import idGenerator from "../../utils/idGenerator";
+import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
+import { db } from "../../utils/firebase/firebase-config";
 
 function AddScreen({ navigation }) {
   const onHomeClick = () => {
     navigation.navigate("Home");
   };
+  const notesCollectionRef = collection(db, "notes");
+  const { auth } = useSelector((state) => state.auth.value);
   const [saveChangesVisible, setSaveChangesVisible] = useState(false);
   const [discardChangesVisible, setDiscardChangesVisible] = useState(false);
   const dispatch = useDispatch();
+
   const [note, setNote] = useState({
     title: "",
     content: "",
@@ -34,15 +37,13 @@ function AddScreen({ navigation }) {
     navigation.navigate("Home");
   };
 
-  const onSaveHandler = () => {
+  const onSaveHandler = async () => {
     setSaveChangesVisible(false);
-    const id = idGenerator();
-    const data = {
-      id,
-      title: note.title,
-      content: note.content,
-    };
-    dispatch(setNotes(data));
+    await addDoc(notesCollectionRef, {
+      content: note.title,
+      title: note.content,
+      userId: auth.id,
+    });
     navigation.navigate("Home");
   };
 

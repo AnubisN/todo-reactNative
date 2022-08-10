@@ -9,9 +9,21 @@ import {
   Modal,
 } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+  setDoc,
+} from "firebase/firestore";
+import { db } from "../../utils/firebase/firebase-config";
 import { getNote, setNotes, updateNotes } from "../../reducers/notesSlice";
+import { useIsFocused } from "@react-navigation/native";
 
 const EditScreen = ({ route, navigation }) => {
+  const isFocused = useIsFocused();
   const { noteId } = route.params;
   const { note } = useSelector((state) => state.notes.value);
   const [editNote, setEditNote] = useState({
@@ -19,8 +31,17 @@ const EditScreen = ({ route, navigation }) => {
     content: "",
   });
 
+  const docRef = doc(db, "notes", `${noteId}`);
+
   const onHomeClick = () => {
     navigation.navigate("Home");
+  };
+
+  const getNote = async () => {
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      setEditNote({ ...docSnap.data() });
+    }
   };
 
   const [saveChangesVisible, setSaveChangesVisible] = useState(false);
@@ -37,13 +58,18 @@ const EditScreen = ({ route, navigation }) => {
     navigation.navigate("Home");
   };
 
-  const onSaveHandler = () => {
+  const onSaveHandler = async () => {
     setSaveChangesVisible(false);
     const data = {
       ...editNote,
     };
-    dispatch(updateNotes(data));
-    navigation.navigate("Home");
+    await setDoc(docRef, data)
+      .then((docRef) => {
+        navigation.navigate("Home");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   const onChangeHandler = (name, val) => {
@@ -53,16 +79,9 @@ const EditScreen = ({ route, navigation }) => {
     }));
   };
 
-  const loadNote = () => {
-    dispatch(getNote(noteId));
-    console.log(noteId);
-    console.log(note);
-    setEditNote(note);
-  };
-
   useEffect(() => {
-    loadNote();
-  }, []);
+    getNote();
+  }, [isFocused]);
 
   return (
     <View

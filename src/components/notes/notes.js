@@ -3,11 +3,23 @@ import { Text, View, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { deleteNotes } from "../../reducers/notesSlice";
 import { useSelector, useDispatch } from "react-redux";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  getDoc,
+  setDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { db } from "../../utils/firebase/firebase-config";
 
 const Notes = ({ todoTask }) => {
   const navigation = useNavigation();
   const [longPressed, setLongPressed] = useState(false);
   const dispatch = useDispatch();
+  const docRef = doc(db, "notes", `${todoTask.id}`);
 
   function getRandomColor() {
     var letters = "0123456789ABCDEF";
@@ -24,8 +36,14 @@ const Notes = ({ todoTask }) => {
     });
   };
 
-  const onNoteDelete = (id) => {
-    dispatch(deleteNotes(id));
+  const onNoteDelete = async (id) => {
+    await deleteDoc(doc(db, "notes", `${id}`))
+      .then((res) => {
+        dispatch(deleteNotes(id));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   let color = getRandomColor();
